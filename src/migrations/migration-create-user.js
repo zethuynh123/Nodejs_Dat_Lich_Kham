@@ -10,6 +10,10 @@ module.exports = {
       },
       email: {
         type: Sequelize.STRING,
+        allowNull: false,
+        validator: {
+          notEmpty: true,
+        },
       },
       password: {
         type: Sequelize.STRING,
