@@ -12,7 +12,7 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
         validator: {
-          notEmpty: true,
+          notNull: { msg: "email is required" },
         },
       },
       password: {
@@ -20,6 +20,10 @@ module.exports = {
       },
       firstName: {
         type: Sequelize.STRING,
+        allowNull: false,
+        validator: {
+          notNull: { msg: "email is required" },
+        },
       },
       lastName: {
         type: Sequelize.STRING,
