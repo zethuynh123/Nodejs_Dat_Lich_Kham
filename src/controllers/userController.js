@@ -9,7 +9,6 @@ let handleLogin = async (req, res) => {
     });
   }
   let userData = await userService.handleCheckLogin(email, password);
-  console.log("userData", userData);
   if (userData.status === 200) {
     return res.status(200).json({
       status: userData.status,
@@ -50,16 +49,29 @@ let handleEditUser = async (req, res) => {
   let result = await userService.editUser(req.body);
   return res.status(result.status).json(result);
 };
+
 let handleDeleteUser = async (req, res) => {
-  if (!req.body.id) {
+  if (!req.query.id) {
     res.status(400).json({
       status: 400,
       message: "Bad request. Missing an id user",
     });
   }
-  let result = await userService.deleteUser(req.body.id);
+  let result = await userService.deleteUser(req.query.id);
 
   return res.status(result.status).json(result);
+};
+
+let getAllCode = async (req, res) => {
+  try {
+    let data = await userService.getAllCode(req.query.type);
+    return res.status(data.status).json(data);
+  } catch (error) {
+    return res.status(400).json({
+      status: 500,
+      message: "Can't connect to server",
+    });
+  }
 };
 
 module.exports = {
@@ -68,4 +80,5 @@ module.exports = {
   handleCreateUser,
   handleEditUser,
   handleDeleteUser,
+  getAllCode,
 };

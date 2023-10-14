@@ -5,7 +5,6 @@ const salt = bcrypt.genSaltSync(10);
 
 let handleCheckLogin = async (email, password) => {
   let isEmailExist = await checkEmailLogin(email);
-  console.log("a", isEmailExist);
   if (isEmailExist) {
     let user = await db.User.findOne({
       where: { email },
@@ -19,7 +18,7 @@ let handleCheckLogin = async (email, password) => {
           dataUser: {
             email: user.email,
             firstName: user.firstName,
-            lastname: user.lastName,
+            lastName: user.lastName,
             gender: user.gender ? "1" : "0",
             address: user.address,
             phone: user.phoneNumber,
@@ -77,7 +76,6 @@ let getAllUser = (id) => {
           attributes: { exclude: ["password"] },
         });
       }
-      console.log("users", users);
       resolve(users);
     } catch (error) {
       reject(error);
@@ -88,7 +86,7 @@ let getAllUser = (id) => {
 let createNewUser = (data) => {
   return new Promise(async (resolve, reject) => {
     try {
-      if (!data.email) {
+      if (!data.email || data.email === "") {
         resolve({
           status: 400,
           message: "Bad request. Misssing an email",
@@ -98,27 +96,29 @@ let createNewUser = (data) => {
 
         if (isExistEmail) {
           resolve({
-            status: 202,
+            status: 200,
             message: "Email is already exists",
+          });
+        } else {
+          let hashPassBcrypt = await hashUserPassword(data.password);
+          await db.User.create({
+            email: data.email,
+            password: hashPassBcrypt,
+            firstName: data.firstName,
+            lastName: data.lastName,
+            address: data.address,
+            phoneNumber: data.phoneNumber,
+            gender: data.gender,
+            roleId: data.roleId,
+            positionId: data.position,
+            image: data.image,
+          });
+          resolve({
+            status: 200,
+            message: "Create user success",
           });
         }
       }
-
-      let hashPassBcrypt = await hashUserPassword(data.password);
-      await db.User.create({
-        email: data.email,
-        password: hashPassBcrypt,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        address: data.address,
-        phoneNumber: data.phoneNumber,
-        gender: data.gender === "1" ? true : false,
-        roleId: data.roleId,
-      });
-      resolve({
-        status: 200,
-        message: "Create user success",
-      });
     } catch (error) {
       reject(error);
     }
@@ -128,9 +128,8 @@ let createNewUser = (data) => {
 let editUser = (data) => {
   return new Promise(async (resolve, reject) => {
     try {
-      // console.log("data", data);
       let userId = data.id;
-      if (userId) {
+      if (userId || data.roleId || data.position || data.gender) {
         let userQuery = await db.User.findOne({ where: { id: userId } });
         if (userQuery) {
           await db.User.update(
@@ -139,7 +138,10 @@ let editUser = (data) => {
               lastName: data.lastName,
               address: data.address,
               phoneNumber: data.phoneNumber,
-              gender: data.gender === "1" ? true : false,
+              gender: data.gender,
+              positionId: data.position,
+              roleId: data.roleId,
+              image: data.image,
             },
             { where: { id: userId } }
           );
@@ -156,7 +158,7 @@ let editUser = (data) => {
       } else {
         resolve({
           status: 400,
-          message: "Bad request. Missing an id user",
+          message: "Bad request. Missing a parameter",
         });
       }
     } catch (error) {
@@ -198,10 +200,32 @@ let deleteUser = (id) => {
   });
 };
 
+let getAllCode = (type) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!type) {
+        resolve({
+          status: 400,
+          message: "Bad request. Missing required parameter",
+        });
+      } else {
+        let res = {};
+        let allcode = await db.Allcode.findAll({ where: { type } });
+        res.status = 200;
+        res.data = allcode;
+        resolve(res);
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
 module.exports = {
   handleCheckLogin,
   getAllUser,
   createNewUser,
   editUser,
   deleteUser,
+  getAllCode,
 };
