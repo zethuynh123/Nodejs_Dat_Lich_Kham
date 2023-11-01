@@ -67,7 +67,7 @@ let getAllCode = async (req, res) => {
     let data = await userService.getAllCode(req.query.type);
     return res.status(data.status).json(data);
   } catch (error) {
-    return res.status(400).json({
+    return res.status(500).json({
       status: 500,
       message: "Can't connect to server",
     });
