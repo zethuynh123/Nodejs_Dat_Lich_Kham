@@ -1,4 +1,3 @@
-import db from "../models/index";
 import doctorService from "../services/doctorService";
 
 let getTopDoctorHome = async (req, res) => {
@@ -18,6 +17,89 @@ let getTopDoctorHome = async (req, res) => {
   }
 };
 
+let getAllDoctor = async (req, res) => {
+  try {
+    let doctor = await doctorService.getAllDoctor(req.query.type);
+    return res.status(doctor.status).json(doctor);
+  } catch (error) {
+    return res.status(500).json({
+      status: 500,
+      message: "Can't connect to server",
+    });
+  }
+};
+
+let saveInfoDoctor = async (req, res) => {
+  try {
+    let result = await doctorService.saveInfoDoctor(req.body);
+    return res.status(result.status).json(result);
+  } catch (error) {
+    return res.status(500).json({
+      status: 500,
+      message: "Can't connect to server",
+    });
+  }
+};
+
+let getDetailDoctorById = async (req, res) => {
+  try {
+    let result = await doctorService.getDetailDoctorById(req.query.id);
+    return res.status(result.status).json(result);
+  } catch (error) {
+    return res.status(500).json({
+      status: 500,
+      message: "Can't connect to server",
+    });
+  }
+};
+
+let bulkSchedule = async (req, res) => {
+  try {
+    let result = await doctorService.bulkScheduleService(req.body);
+    return res.status(result.status).json(result);
+  } catch (error) {
+    return res.status(500).json({
+      status: 500,
+      message: "Can't connect to server",
+    });
+  }
+};
+
+let getScheduleDoctorByDate = async (req, res) => {
+  try {
+    let result = await doctorService.getScheduleDoctorByDateService(
+      req.query.doctorId,
+      req.query.date
+    );
+    return res.status(result.status).json(result);
+  } catch (error) {
+    return res.status(500).json({
+      status: 500,
+      message: "Can't connect to server",
+    });
+  }
+};
+
+let getExtraInfoDoctorById = async (req, res) => {
+  try {
+    let result = await doctorService.getExtraInfoDoctorByIdService(
+      req.query.doctorId
+    );
+    return res.status(result.status).json(result);
+  } catch (error) {
+    return res.status(500).json({
+      status: 500,
+      message: "Can't connect to server",
+    });
+  }
+};
+
 module.exports = {
   getTopDoctorHome,
+  getAllDoctor,
+  saveInfoDoctor,
+  getDetailDoctorById,
+  bulkSchedule,
+  getScheduleDoctorByDate,
+  getExtraInfoDoctorById,
 };
