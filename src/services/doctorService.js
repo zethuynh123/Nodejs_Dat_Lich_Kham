@@ -11,7 +11,7 @@ let getTopDoctor = async (limit) => {
     try {
       let doctors = await db.User.findAll({
         limit,
-        order: [["createdAt", "DESC"]],
+        order: [["createdAt", "ASC"]],
         attributes: {
           exclude: ["password"],
         },
@@ -71,6 +71,8 @@ let saveInfoDoctor = (data) => {
         !data.selectedPrice ||
         !data.selectedMethod ||
         !data.selectedProvince ||
+        !data.specialtyId ||
+        // !data.clinicId ||
         !data.nameClinic ||
         !data.addressClinic
       ) {
@@ -116,6 +118,8 @@ let saveInfoDoctor = (data) => {
               priceId: data.selectedPrice,
               provinceId: data.selectedProvince,
               paymentId: data.selectedMethod,
+              specialtyId: data.specialtyId,
+              clinicId: data.clinicId,
               nameClinic: data.nameClinic,
               addressClinic: data.addressClinic,
               note: data.note,
@@ -132,6 +136,8 @@ let saveInfoDoctor = (data) => {
             priceId: data.selectedPrice,
             provinceId: data.selectedProvince,
             paymentId: data.selectedMethod,
+            specialtyId: data.specialtyId,
+            clinicId: data.clinicId,
             nameClinic: data.nameClinic,
             addressClinic: data.addressClinic,
             note: data.note,
@@ -278,6 +284,11 @@ let getScheduleDoctorByDateService = (doctorId, date) => {
               model: db.Allcode,
               as: "timeTypeData",
               attributes: ["valueEn", "valueVi"],
+            },
+            {
+              model: db.User,
+              as: "doctorData",
+              attributes: ["firstName", "lastName"],
             },
           ],
           raw: false,
