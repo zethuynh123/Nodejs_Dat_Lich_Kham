@@ -16,6 +16,7 @@ let handleCheckLogin = async (email, password) => {
           status: 200,
           message: "Checked sussccess!",
           dataUser: {
+            id: user.id,
             email: user.email,
             firstName: user.firstName,
             lastName: user.lastName,

@@ -1,6 +1,7 @@
 import db from "../models/index";
 import bcrypt from "bcryptjs";
 import _ from "lodash";
+import emailService from "./emailService";
 require("dotenv").config();
 const MAX_NUMBER_SCHEDULE = process.env.MAX_NUMBER_SCHEDULE;
 
@@ -352,6 +353,99 @@ let getExtraInfoDoctorByIdService = (id) => {
   });
 };
 
+let getListPatientForDoctorService = (id, date) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!id || !date) {
+        resolve({
+          status: 400,
+          message: "Bad request. Missing parameters",
+        });
+      } else {
+        let data = await db.Booking.findAll({
+          where: {
+            statusId: "S2",
+            doctorId: id,
+            date,
+          },
+          include: [
+            {
+              model: db.User,
+              as: "infoPatientData",
+              attributes: ["email", "firstName", "gender", "address"],
+              include: [
+                {
+                  model: db.Allcode,
+                  as: "genderData",
+                  attributes: ["valueEn", "valueVi"],
+                },
+              ],
+            },
+            {
+              model: db.Allcode,
+              as: "timeTypeDataPatient",
+              attributes: ["valueEn", "valueVi"],
+            },
+          ],
+          raw: true,
+          nest: true,
+        });
+
+        resolve({
+          status: 200,
+          data,
+        });
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+let sendRemedyService = (data) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (
+        !data.email ||
+        !data.imageBase64 ||
+        !data.doctorId ||
+        !data.patientId ||
+        !data.timeType
+      ) {
+        resolve({
+          status: 400,
+          message: "Bad request. Missing parameters",
+        });
+      } else {
+        //update patient status
+        let appointment = await db.Booking.findOne({
+          where: {
+            doctorId: data.doctorId,
+            patientId: data.patientId,
+            timeType: data.timeType,
+            statusId: "S2",
+          },
+          raw: false,
+        });
+
+        if (appointment) {
+          appointment.statusId = "S3";
+          await appointment.save();
+        }
+        //send email remedy
+        await emailService.sendAttachment(data);
+
+        resolve({
+          status: 200,
+          message: "Send the remedy success!",
+        });
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
 module.exports = {
   getTopDoctor,
   getAllDoctor,
@@ -360,4 +454,6 @@ module.exports = {
   bulkScheduleService,
   getScheduleDoctorByDateService,
   getExtraInfoDoctorByIdService,
+  getListPatientForDoctorService,
+  sendRemedyService,
 };

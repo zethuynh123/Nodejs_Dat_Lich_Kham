@@ -21,6 +21,9 @@ let patientBookAppointmentService = (data) => {
         !data.fullName ||
         !data.timeString ||
         !data.doctorName ||
+        !data.phoneNumber ||
+        !data.selectedGender ||
+        !data.address ||
         !data.language
       ) {
         resolve({
@@ -43,6 +46,10 @@ let patientBookAppointmentService = (data) => {
           defaults: {
             email: data.email,
             roleId: "R3",
+            gender: data.selectedGender,
+            address: data.address,
+            firstName: data.fullName,
+            phoneNumber: data.phoneNumber,
           },
         });
 

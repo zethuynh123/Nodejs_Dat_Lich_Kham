@@ -94,6 +94,33 @@ let getExtraInfoDoctorById = async (req, res) => {
   }
 };
 
+let getListPatientForDoctor = async (req, res) => {
+  try {
+    let result = await doctorService.getListPatientForDoctorService(
+      req.query.id,
+      req.query.date
+    );
+    return res.status(result.status).json(result);
+  } catch (error) {
+    return res.status(500).json({
+      status: 500,
+      message: "Can't connect to server",
+    });
+  }
+};
+
+let sendRemedy = async (req, res) => {
+  try {
+    let result = await doctorService.sendRemedyService(req.body);
+    return res.status(result.status).json(result);
+  } catch (error) {
+    return res.status(500).json({
+      status: 500,
+      message: "Can't connect to server",
+    });
+  }
+};
+
 module.exports = {
   getTopDoctorHome,
   getAllDoctor,
@@ -102,4 +129,6 @@ module.exports = {
   bulkSchedule,
   getScheduleDoctorByDate,
   getExtraInfoDoctorById,
+  getListPatientForDoctor,
+  sendRemedy,
 };
