@@ -26,6 +26,38 @@ let sendSimpleEmail = async (data) => {
   });
 };
 
+let sendAttachment = async (data) => {
+  const transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+      user: process.env.EMAIL_APP,
+      pass: process.env.EMAIL_APP_PASSWORD,
+    },
+  });
+
+  // send mail with defined transport object
+  const info = await transporter.sendMail({
+    from: '"Duy Huynh 👻" <zethuynh456@gmail.com>', // sender address
+    to: data.email, // list of receivers
+    subject: `${
+      data.language === "vi"
+        ? "Kết quả đặt lịch khám bệnh"
+        : "Information for scheduling medical examination"
+    }`, // Subject line
+    // text: "Hello world?", // plain text body
+    html: getBodyHTMLEmailRemedy(data),
+    attachments: [
+      {
+        filename: `remedy-${data.patientId}-${new Date().getTime()}.jpg`,
+        content: data.imageBase64.split("base64,")[1],
+        encoding: "base64",
+      },
+    ],
+  });
+};
+
 const handleChangeLanguageEmail = (data) => {
   if (data.language === "vi") {
     return `
@@ -62,6 +94,31 @@ const handleChangeLanguageEmail = (data) => {
   return;
 };
 
+const getBodyHTMLEmailRemedy = (data) => {
+  if (data.language === "vi") {
+    return `
+    <h3>Xin chào ${data.patientName}!</h3>
+    <p>Bạn nhận được email này vì đã đặt lịch khám bệnh trên BookingCare thành công.</p>
+    <p>Thông tin hóa đơn/ đơn thuốc được gửi trong tệp đính kèm.</p>
+    <div>
+    Xin cảm ơn.
+    </div>
+        `;
+  }
+  if (data.language === "en") {
+    return `
+        <h3>Dear ${data.patientName}!</h3>
+        <p>You received this email because you have successfully booked a medical appointment on BookingCare.</p>
+        <p>Invoice/prescription information is sent in the attached file.</p>
+        <div>
+        Sincerely thank.
+        </div>
+        `;
+  }
+  return;
+};
+
 module.exports = {
   sendSimpleEmail,
+  sendAttachment,
 };

@@ -18,6 +18,10 @@ module.exports = (sequelize, DataTypes) => {
         targetKey: "keyMap",
         as: "genderData",
       });
+      User.hasMany(models.Booking, {
+        foreignKey: "patientId",
+        as: "infoPatientData",
+      });
       User.hasMany(models.Schedule, {
         foreignKey: "doctorId",
         as: "doctorData",

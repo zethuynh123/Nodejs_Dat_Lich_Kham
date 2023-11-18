@@ -59,10 +59,10 @@ let getAllClinicService = () => {
   });
 };
 
-let getDetailClinicByIdService = (id, location) => {
+let getDetailClinicByIdService = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
-      if (!id || !location) {
+      if (!id) {
         resolve({
           status: 400,
           message: "Bad request. Missing a parameters",
@@ -70,13 +70,18 @@ let getDetailClinicByIdService = (id, location) => {
       } else {
         let data = await db.Clinic.findOne({
           where: { id },
-          attributes: ["descriptionHTML", "descriptionMarkdown"],
+          attributes: [
+            "name",
+            "address",
+            "descriptionHTML",
+            "descriptionMarkdown",
+          ],
           include: [
             {
               model: db.Doctor_Infor,
-              as: "doctorInfoData",
+              as: "doctorOnClinicData",
               attributes: ["doctorId", "provinceId"],
-              where: location !== "ALL" && { provinceId: location },
+              // where: location !== "ALL" && { provinceId: location },
             },
           ],
           raw: false,
